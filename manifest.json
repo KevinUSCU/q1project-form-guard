@@ -1,0 +1,13 @@
+{
+  "name": "Form Guard",
+  "version": "0.1",
+  "description": "Auto-detects and saves non-secure form data on the current page as a backup in event of a tab reload, accidental closure, or crash.",
+
+  "permissions": [],
+
+  "browser_action": {
+    "default_title": "",
+    "default_icon": "",
+    "default_popup": "popup.html"
+  }
+}
