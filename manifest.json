@@ -17,12 +17,24 @@
         "storage"
     ],
 
-    "browser_action": {
+    "page_action": {
         "default_title": "Form Guard",
         "default_icon": {
             "19": "images/toolbar-19.png",
             "38": "images/toolbar-38.png"
         },
         "default_popup": "popup.html"
+    },
+
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["js/form-guard-injector.js"]
+        }
+    ],
+
+    "background": {
+        "scripts": ["js/form-guard-event-page.js"],
+        "persistent": false
     }
 }
