@@ -1,13 +1,28 @@
 {
-  "name": "Form Guard",
-  "version": "0.1",
-  "description": "Auto-detects and saves non-secure form data on the current page as a backup in event of a tab reload, accidental closure, or crash.",
+    "manifest_version": 2,
 
-  "permissions": [],
+    "name": "Form Guard",
+    "version": "0.1",
+    "description": "Auto-detects and saves non-secure form data on the current page as a backup in event of a tab reload, accidental closure, or crash.",
 
-  "browser_action": {
-    "default_title": "",
-    "default_icon": "",
-    "default_popup": "popup.html"
-  }
+    "icons": {
+        "128": "images/icon-128.png",
+        "16": "images/icon-16.png",
+        "32": "images/icon-32.png",
+        "48": "images/icon-48.png"
+    },
+
+    "permissions": [
+        "activeTab",
+        "storage"
+    ],
+
+    "browser_action": {
+        "default_title": "Form Guard",
+        "default_icon": {
+            "19": "images/toolbar-19.png",
+            "38": "images/toolbar-38.png"
+        },
+        "default_popup": "popup.html"
+    }
 }
