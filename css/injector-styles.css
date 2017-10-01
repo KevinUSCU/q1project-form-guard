@@ -1,0 +1,55 @@
+#form-guard-alert {
+    position: fixed;
+    z-index: 100000;
+    top: 10px;
+    right: 10px;
+    width: 25%;
+    background-color: #00A800;
+    margin: 0;
+    padding: 0;
+    border-radius: 10px;
+    box-shadow: 0 0 25px 5px #1D1D1D;
+    color: #F1F1F1;
+    border: 1px solid #F1F1F1;
+    text-align: center;
+    animation-duration: 0.4s;
+    animation-name: slidedown;
+}
+
+#form-guard-alert header {
+    background-color: #036800;
+    border-radius: 10px 10px 0 0;
+    border: none;
+    margin: 0;
+    padding: 5px;
+    font-family: "Arial Black", Gadget, sans-serif;
+    font-size: 16px;
+}
+
+#form-guard-alert div {
+    border: none;
+    margin: 0;
+    padding: 0 10px 10px 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+@keyframes slidedown {
+  from {
+    top: -200px;
+  }
+
+  to {
+    top: 10px;
+  }
+}
+
+@keyframes slideup {
+  from {
+    top: 10px;
+  }
+
+  to {
+    top: -200px;
+  }
+}

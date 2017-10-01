@@ -17,6 +17,8 @@ if (formFields.length > 0) {
 
 
 // Function to Grab Form Fields and set up our data structure
+// (Note that a custom structure is needed because DOM elements
+// can't be passed via Chrome messages)
 function getFormFields() {
     let formArray = []; // this is an array of objects, each with a name key and a value
     let validTypes = [ //these are the input fields we'll consider
@@ -70,7 +72,27 @@ function writeFormFields(formFields) {
 
 // Function to display user alert that saved data is present
 function displayAlert() {
+    // Create alert object in DOM
+    let alertbox = document.createElement("aside");
+    alertbox.id = "form-guard-alert";
+    let header = document.createElement("header");
+    header.innerText = "Form Guard";
+    alertbox.appendChild(header);
+    let message = document.createElement("div");
+    message.innerText = `
+        There is saved form data for this page!
 
+        To recover it, please use the Form Guard extension button.
+        `;
+    alertbox.appendChild(message);
+    document.body.appendChild(alertbox);
+    // Set listener to remove alert on click inside it
+    alertbox.addEventListener("click", function() {
+        alertbox.style.animationName = "slideup";
+        setTimeout(function() {
+            document.body.removeChild(alertbox);
+        }, 400);
+    })
 }
 
 
