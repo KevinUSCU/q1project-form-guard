@@ -37,9 +37,9 @@ function getFormFields() {
         "url",
         "week"
     ];
-    let inputItems = document.querySelectorAll("form input"); 
-    let selectItems = document.querySelectorAll("form select");
-    let textareaItems = document.querySelectorAll("form textarea");
+    let inputItems = document.querySelectorAll("input"); 
+    let selectItems = document.querySelectorAll("select");
+    let textareaItems = document.querySelectorAll("textarea");
     inputItems.forEach(parseItem);
     selectItems.forEach(parseItem);
     textareaItems.forEach(parseItem);

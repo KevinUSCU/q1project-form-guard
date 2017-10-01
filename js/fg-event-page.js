@@ -7,3 +7,5 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         sendResponse("found-saved-data");
     }
 })
+
+var kevin = "hi there!";

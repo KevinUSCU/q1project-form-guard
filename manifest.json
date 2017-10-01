@@ -29,13 +29,13 @@
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
-            "js": ["js/form-guard-injector.js"],
-            "css": ["css/injector-styles.css"]
+            "js": ["js/fg-injector.js"],
+            "css": ["css/fg-injector-styles.css"]
         }
     ],
 
     "background": {
-        "scripts": ["js/form-guard-event-page.js"],
+        "scripts": ["js/fg-event-page.js"],
         "persistent": false
     }
 }
