@@ -11,6 +11,7 @@ if (formFields.length > 0) {
         }
     })
 }
+console.log(formFields);
 
 // Listener for main extension requests
 
@@ -21,26 +22,33 @@ if (formFields.length > 0) {
 // can't be passed via Chrome messages)
 function getFormFields() {
     let formArray = []; // this is an array of objects, each with a name key and a value
-    let validTypes = [ //these are the input fields we'll consider
-        "checkbox", 
-        "color", 
-        "date", 
-        "datetime-local",
-        "email",
-        "month",
-        "number",
-        "radio",
-        "range",
-        "tel",
-        "text",
-        "time",
-        "url",
-        "week"
-    ];
-    let inputItems = document.querySelectorAll("input"); 
-    let selectItems = document.querySelectorAll("select");
-    let textareaItems = document.querySelectorAll("textarea");
-    inputItems.forEach(parseItem);
+    
+    // Eliminate anything in a <header>. Would also be worth eliminating footer fields, but
+    // combining these seems messy, so will revisit later.
+    let inputItems = document.querySelectorAll("body > *:not(header) input");
+    let selectItems = document.querySelectorAll("body > *:not(header) select");
+    let textareaItems = document.querySelectorAll("body > *:not(header) textarea");
+
+    inputItems.forEach(function(item) {
+        // For <input> items, check for valid type before sending to parseItem
+        let validTypes = [
+            "checkbox", 
+            "color", 
+            "date", 
+            "datetime-local",
+            "email",
+            "month",
+            "number",
+            "radio",
+            "range",
+            "tel",
+            "text",
+            "time",
+            "url",
+            "week"
+        ];
+        if (validTypes.includes(item.type.toLowerCase())) parseItem(item);
+    });
     selectItems.forEach(parseItem);
     textareaItems.forEach(parseItem);
 
@@ -53,8 +61,27 @@ function getFormFields() {
         object.name = item.name;
         object.id = item.id;
         object.value = item.value;
-        // Only add items that have a useable name or id
-        if (object.name.length > 0 || object.id.length > 0) formArray.push(object);
+
+        let isValidItem = true;
+
+        // Only add items that have a useable name
+        if (object.name.length === 0 && object.id.length === 0) isValidItem = false;
+        
+        // Set lexicon of excluded terms
+        let invalidTerms = [
+            "search",
+            "credit",
+            "cvc",
+            "password"
+        ];
+
+        // Filter out items containing excluded terms
+        for (let i = 0; i < invalidTerms.length; i++) {
+            if (object.name.toLowerCase().includes(invalidTerms[i])) isValidItem = false;
+            else if (object.id.toLowerCase().includes(invalidTerms[i])) isValidItem = false;
+        }
+                    
+        if (isValidItem) formArray.push(object);
     }
 
     return formArray;
