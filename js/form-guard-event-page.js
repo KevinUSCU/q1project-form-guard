@@ -1,9 +1,9 @@
-chrome.runtime.onMessage.addListener(function(formFields, sender, sendResponse) {
-    if (formFields.length > 0) {
-        // Make extension button active for this page
-        // pageAction.show requires the tab id, sender is a MessageSender object 
-        // which has the id from the sending tab at tab.id
+// Listener for Injector to enable extension
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    if (message === "enable") {
+        // Enable extension button
         chrome.pageAction.show(sender.tab.id);
-        sendResponse(true);
-    } else sendResponse(false);
+        // Check for recoverable form data
+        sendResponse("found-saved-data");
+    }
 })
