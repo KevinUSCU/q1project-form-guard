@@ -2,16 +2,24 @@
 console.log("I'm running on this page!");
 
 // At page load, get references and establish if forms are present
+var tabURL = null;
+var recoveredFormData = null;
 var formFields = getFormFields();
 if (formFields.length > 0) {
     // Send message to Event Page to enable extension for user
     chrome.runtime.sendMessage("enable", function(response) {
-        if (response === "found-saved-data") {
-            displayAlert();
-        }
+        tabURL = response;
+        // Check for previously stored form data
+        getSavedFormData(tabURL, (data) => {
+            if (data) {
+                recoveredFormData = data;
+                displayAlert();
+            }
+        });
+        // saveFormData(tabURL, formFields);
+        chrome.storage.local.remove(tabURL);
     })
 }
-console.log(formFields);
 
 // Listener for main extension requests
 
@@ -89,12 +97,28 @@ function getFormFields() {
 
 // Function to Read Form Data from DOM
 function readFormFields(formFields) {
-
+    formFields.forEach(function(item) {
+        if (item.id.length > 0) {
+            let fieldTarget = document.getElementById(item.id);
+            item.value = fieldTarget.value;
+        } else {
+            let fieldTarget = document.getElementsByName(item.name);
+            item.value = fieldTarget.value;
+        }
+    });
 }
 
 // Function to Populate Form Data into DOM
 function writeFormFields(formFields) {
-
+    formFields.forEach(function(item) {
+        if (item.id.length > 0) {
+            let fieldTarget = document.getElementById(item.id);
+            fieldTarget.value = item.value;
+        } else {
+            let fieldTarget = document.getElementsByName(item.name);
+            fieldTarget.value = item.value;
+        }
+    });
 }
 
 // Function to display user alert that saved data is present
@@ -120,6 +144,21 @@ function displayAlert() {
             document.body.removeChild(alertbox);
         }, 400);
     })
+}
+
+// Function to read saved data from storage
+function getSavedFormData(url, callback) {
+  // chrome.runtime.lastError is true if item cannot be retrieved from storage
+  chrome.storage.local.get(url, (items) => {
+    callback(chrome.runtime.lastError ? null : items[url]);
+  });
+}
+
+// Function to save form data to storage
+function saveFormData(url, data) {
+  var items = {};
+  items[url] = data;
+  chrome.storage.local.set(items);
 }
 
 

@@ -3,8 +3,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     if (message === "enable") {
         // Enable extension button
         chrome.pageAction.show(sender.tab.id);
-        // Check for recoverable form data
-        sendResponse("found-saved-data");
+        // Pass url back to tab
+        sendResponse(sender.tab.url);
     }
 })
 
