@@ -1,5 +1,5 @@
 // Listener for messages from Injector
-// (message is an array where index 0 is the command, and index 1 carries data)
+// (messages and responses are arrays where index 0 is the command, and index 1 carries data)
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     if (message[0] === "enable") {
         // Enable extension button
@@ -28,7 +28,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     } else if (message[0] === "save") {
         // Serve request to save data
         saveFormData(sender.tab.url, message[1]);
-    } else if (message[0] === "delete") {
+    } else if (message[0] === "erase") {
         // Serve request to delete data for this page
         deleteFormData(sender.tab.url);
     }
@@ -53,6 +53,3 @@ function saveFormData(url, data) {
 function deleteFormData(url) {
     chrome.storage.local.remove(url);
 }
-
-
-var kevin = "hi there!";

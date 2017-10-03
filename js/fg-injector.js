@@ -1,33 +1,60 @@
 // Dummy check to make sure injector is running
 console.log("I'm running on this page!");
 
-// At page load, get references and establish if forms are present
-var tabURL = null;
-var recoveredFormData = null;
-var formFields = getFormFields();
+// At page load, establish if forms are present and existence of previously saved data
+var recoveredFormData = null; //will hold previously saved data
+var formFields = getFormFields(); //holds the current fields found and read on the page
 if (formFields.length > 0) {
     // Send message to Event Page to enable extension for user
     chrome.runtime.sendMessage("enable", function(response) {
-        tabURL = response;
         // Check for previously stored form data
-        getSavedFormData(tabURL, (data) => {
-            if (data) {
-                recoveredFormData = data;
-                displayAlert();
-            }
-        });
-        // saveFormData(tabURL, formFields);
-        chrome.storage.local.remove(tabURL);
+        if (response === true) {
+            // Stored data exists and has been returned
+            recoveredFormData = data;
+            displayAlert();
+        }
     })
 }
 
 // Listener for main extension requests
+// (messages and responses are arrays where index 0 is the command, and index 1 carries data)
+var intervalID = null;
 
-
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    if (message[0] === "activate") {
+        // Start recording form data on page
+        if (!intervalID) {
+            intervalID = window.setInterval(function() {
+                readFormFields(formFields);
+                let message = ["save", formFields];
+                chrome.runtime.sendMessage(message);
+            }, 30000);
+        }
+    } else if (message[0] === "deactivate") {
+        // Stop recording form data on page
+        if (intervalID) {
+            window.clearInterval(intervalID);
+        }
+    } else if (message[0] === "recover") {
+        // Recover most recently saved form data on page
+        chrome.runtime.sendMessage("fetch", function(response) {
+            if (response[0] === true) {
+                // Write data back to page
+                writeFormFields(response[1]);
+            }
+        })
+    } else if (message[0] === "delete") {
+        // Delete previously saved data on page by sending request to event-page
+        chrome.runtime.sendMessage("erase");
+    } else if (message[0] === "isThereRecoveredData") {
+        // Answer request about whether there is recovered data at startup
+        if (recoveredFormData) sendResponse(true);
+        else sendResponse(false);
+    }
+})
 
 // Function to Grab Form Fields and set up our data structure
-// (Note that a custom structure is needed because DOM elements
-// can't be passed via Chrome messages)
+// (Note that a custom structure is needed because it needs to be "JSONifiable")
 function getFormFields() {
     let formArray = []; // this is an array of objects, each with a name key and a value
     
@@ -72,7 +99,7 @@ function getFormFields() {
 
         let isValidItem = true;
 
-        // Only add items that have a useable name
+        // Only add items that have a useable name and/or id
         if (object.name.length === 0 && object.id.length === 0) isValidItem = false;
         
         // Set lexicon of excluded terms
@@ -98,10 +125,10 @@ function getFormFields() {
 // Function to Read Form Data from DOM
 function readFormFields(formFields) {
     formFields.forEach(function(item) {
-        if (item.id.length > 0) {
+        if (item.id.length > 0) { // if id is present, use that to locate DOM element
             let fieldTarget = document.getElementById(item.id);
             item.value = fieldTarget.value;
-        } else {
+        } else { // in absence of id, use name field
             let fieldTarget = document.getElementsByName(item.name);
             item.value = fieldTarget.value;
         }
@@ -111,10 +138,10 @@ function readFormFields(formFields) {
 // Function to Populate Form Data into DOM
 function writeFormFields(formFields) {
     formFields.forEach(function(item) {
-        if (item.id.length > 0) {
+        if (item.id.length > 0) { // if id is present, use that to locate DOM element
             let fieldTarget = document.getElementById(item.id);
             fieldTarget.value = item.value;
-        } else {
+        } else { // in absence of id, use name field
             let fieldTarget = document.getElementsByName(item.name);
             fieldTarget.value = item.value;
         }
@@ -126,65 +153,35 @@ function displayAlert() {
     // Create alert object in DOM
     let alertbox = document.createElement("aside");
     alertbox.id = "form-guard-alert";
+
     let header = document.createElement("header");
     header.innerText = "Form Guard";
     alertbox.appendChild(header);
-    let message = document.createElement("div");
+    
+    let message = document.createElement("p");
     message.innerText = `
         There is saved form data for this page!
 
-        To recover it, please use the Form Guard extension button.
+        To recover it, please click here:
         `;
     alertbox.appendChild(message);
+
+    let button = document.createElement("button");
+    button.innerText = "Recover";
+    alertbox.appendChild(button);
+    
     document.body.appendChild(alertbox);
+
+    // Set listener for recover button
+    button.addEventListener("click", function() {
+        writeFormFields(recoveredFormData);
+    })
+
     // Set listener to remove alert on click inside it
     alertbox.addEventListener("click", function() {
         alertbox.style.animationName = "slideup";
         setTimeout(function() {
             document.body.removeChild(alertbox);
-        }, 400);
+        }, 395);
     })
 }
-
-// Function to read saved data from storage
-function getSavedFormData(url, callback) {
-  // chrome.runtime.lastError is true if item cannot be retrieved from storage
-  chrome.storage.local.get(url, (items) => {
-    callback(chrome.runtime.lastError ? null : items[url]);
-  });
-}
-
-// Function to save form data to storage
-function saveFormData(url, data) {
-  var items = {};
-  items[url] = data;
-  chrome.storage.local.set(items);
-}
-
-
-// If forms are present, 
-// check for saved data - populate or offer to?
-
-// start interval timer to periodically grab form data and save
-
-// var form = document.querySelector("form input")
-// console.log(form)
-// form.addEventListener("input", function() {
-//     // console.log(this.value)
-//     console.log(event.target.value)
-
-// })
-
-
-// if (window == top) {
-//     var formFields = getFormFields();
-//     console.log(formFields);
-//     console.log(formFields.length);
-//     // Send notification with found form data
-//     // a NodeList won't pass correctly as a message, so I'll need to convert
-//     // it to something else first (array, object)
-//     chrome.runtime.sendMessage(formFields, function(response) {
-//         console.log(response);
-//     });
-// }
-
