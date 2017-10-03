@@ -162,7 +162,7 @@ function displayAlert() {
     message.innerText = `
         There is saved form data for this page!
 
-        To recover it, please click here:
+        To recover now, please click here:
         `;
     alertbox.appendChild(message);
 

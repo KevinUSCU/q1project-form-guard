@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Form Guard</title>
-    <link rel="stylesheet" href="css/fg-popup-styles.css">
-    <script src="js/fg-popup.js"></script>
-  </head>
-  <body>
-    Hello world!
-    Button to clear form?
-    Button to recover form?
-    Temporarily disable form save?
-
-    Options page:
-    clear saved form data
-    set save interval
-  </body>
+    <head>
+        <meta charset="utf-8">
+        <title>Form Guard</title>
+        <link rel="stylesheet" href="css/fg-popup-styles.css">
+        <script src="js/fg-popup.js"></script>
+    </head>
+    <body>
+        <div id="splash">
+            <img src="images/icon-64.png" alt="Form Guard Icon">
+        </div>
+        <div id="main">
+            <header>
+                <h1>Form Guard</h1>
+            </header>
+            <section>
+                <button id="recover">Recover Data</button>
+                <button id="enable">Enable Saving Form</button>
+                <button id="disable">Disable Saving Form</button>
+                <button id="delete">Delete Saved Data</button>
+            </section>
+        </div>
+    </body>
 </html>
