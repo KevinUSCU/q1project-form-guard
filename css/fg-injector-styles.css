@@ -4,7 +4,7 @@
     top: 10px;
     right: 10px;
     width: 300px;
-    height: 125px;
+    height: 140px;
     background-color: #00A800;
     margin: 0;
     padding: 0;
@@ -28,7 +28,7 @@
     font-size: 16px;
 }
 
-#form-guard-alert div {
+#form-guard-alert p {
     border: none;
     margin: 0;
     padding: 0 10px 10px 10px;
@@ -38,7 +38,7 @@
 
 @keyframes slidedown {
   from {
-    top: -200px;
+    top: -215px;
   }
 
   to {
@@ -52,6 +52,6 @@
   }
 
   to {
-    top: -200px;
+    top: -215px;
   }
 }
