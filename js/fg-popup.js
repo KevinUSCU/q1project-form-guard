@@ -11,6 +11,7 @@ var recoverButton = document.getElementById("recover");
 var enableButton = document.getElementById("enable");
 var disableButton = document.getElementById("disable");
 var deleteButton = document.getElementById("delete");
+var delallButton = document.getElementById("delall");
 
 recoverButton.addEventListener("click", function() {
     // Get id for active tab
@@ -66,6 +67,15 @@ deleteButton.addEventListener("click", function() {
             status.style.display = "block"; // make visible
         });
     });
+});
+
+delallButton.addEventListener("click", function() {
+    // Clear all storage data for this extension
+    chrome.storage.local.clear();
+    // Display status message in popup
+    let status = document.getElementById("status");
+    status.innerText = "All Form Guard data was deleted";
+    status.style.display = "block"; // make visible
 });
 
 // Function to get URL of the current tab (async)

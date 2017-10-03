@@ -28,7 +28,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             intervalID = window.setInterval(function() {
                 readFormFields(formFields);
                 chrome.runtime.sendMessage(["save", formFields]);
-            }, 30000);
+            }, 15000);
             sendResponse(["recording", null]);
         } else sendResponse(["alreadyRecording", null]);
     } else if (message[0] === "deactivate") {
