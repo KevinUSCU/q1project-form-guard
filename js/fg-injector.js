@@ -8,6 +8,7 @@ if (formFields.length > 0) {
     // Send message to Event Page to enable extension for user
     chrome.runtime.sendMessage(["enable", null], function(response) {
         // Check for previously stored form data
+        console.log(response)
         if (response[0] === true) {
             // Stored data exists and has been returned
             recoveredFormData = response[1];
