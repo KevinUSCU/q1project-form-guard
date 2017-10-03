@@ -6,11 +6,11 @@ var recoveredFormData = null; //will hold previously saved data
 var formFields = getFormFields(); //holds the current fields found and read on the page
 if (formFields.length > 0) {
     // Send message to Event Page to enable extension for user
-    chrome.runtime.sendMessage("enable", function(response) {
+    chrome.runtime.sendMessage(["enable", null], function(response) {
         // Check for previously stored form data
-        if (response === true) {
+        if (response[0] === true) {
             // Stored data exists and has been returned
-            recoveredFormData = data;
+            recoveredFormData = response[1];
             displayAlert();
         }
     })
@@ -26,8 +26,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         if (!intervalID) {
             intervalID = window.setInterval(function() {
                 readFormFields(formFields);
-                let message = ["save", formFields];
-                chrome.runtime.sendMessage(message);
+                chrome.runtime.sendMessage(["save", formFields]);
             }, 30000);
         }
     } else if (message[0] === "deactivate") {
@@ -37,7 +36,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         }
     } else if (message[0] === "recover") {
         // Recover most recently saved form data on page
-        chrome.runtime.sendMessage("fetch", function(response) {
+        chrome.runtime.sendMessage(["fetch", null], function(response) {
             if (response[0] === true) {
                 // Write data back to page
                 writeFormFields(response[1]);
@@ -45,11 +44,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         })
     } else if (message[0] === "delete") {
         // Delete previously saved data on page by sending request to event-page
-        chrome.runtime.sendMessage("erase");
+        chrome.runtime.sendMessage(["erase", null]);
     } else if (message[0] === "isThereRecoveredData") {
         // Answer request about whether there is recovered data at startup
-        if (recoveredFormData) sendResponse(true);
-        else sendResponse(false);
+        if (recoveredFormData) sendResponse([true, null]);
+        else sendResponse([false, null]);
     }
 })
 
