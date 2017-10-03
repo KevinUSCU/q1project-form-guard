@@ -31,23 +31,27 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             }, 30000);
             sendResponse(["recording", null]);
         } else sendResponse(["alreadyRecording", null]);
-        return true;
     } else if (message[0] === "deactivate") {
         // Stop recording form data on page
         if (intervalID) {
             window.clearInterval(intervalID);
         }
+        sendResponse(["stopped", null]);
     } else if (message[0] === "recover") {
         // Recover most recently saved form data on page
         chrome.runtime.sendMessage(["fetch", null], function(response) {
             if (response[0] === true) {
                 // Write data back to page
                 writeFormFields(response[1]);
-            }
+                sendResponse([true, null]);
+            } else sendResponse([false, null]);
         })
+        return true; // to make async to handle waiting for fetch response
     } else if (message[0] === "delete") {
         // Delete previously saved data on page by sending request to event-page
         chrome.runtime.sendMessage(["erase", null]);
+        recoveredFormData = null; // remove initial fetched data
+        sendResponse(["deleted", null]);
     } else if (message[0] === "isThereRecoveredData") {
         // Answer request about whether there is recovered data at startup
         if (recoveredFormData) sendResponse([true, null]);

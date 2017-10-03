@@ -35,6 +35,12 @@ section {
     padding: 10px 0;
 }
 
+#status {
+    display: none;
+    color: #F1F1F1;
+    font-weight: bold;
+}
+
 button {
     margin: 10px;
     border-radius: 10px;
