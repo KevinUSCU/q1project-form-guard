@@ -29,7 +29,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                 readFormFields(formFields);
                 chrome.runtime.sendMessage(["save", formFields]);
             }, 30000);
-        }
+            sendResponse(["recording", null]);
+        } else sendResponse(["alreadyRecording", null]);
+        return true;
     } else if (message[0] === "deactivate") {
         // Stop recording form data on page
         if (intervalID) {
@@ -67,7 +69,7 @@ function getFormFields() {
     inputItems.forEach(function(item) {
         // For <input> items, check for valid type before sending to parseItem
         let validTypes = [
-            "checkbox", 
+            "checkbox",
             "color", 
             "date", 
             "datetime-local",
@@ -91,10 +93,12 @@ function getFormFields() {
         let object = {
             name: "",
             id: "",
+            checked: "",
             value: ""
         }
         object.name = item.name;
         object.id = item.id;
+        object.checked = item.checked;
         object.value = item.value;
 
         let isValidItem = true;
@@ -127,9 +131,11 @@ function readFormFields(formFields) {
     formFields.forEach(function(item) {
         if (item.id.length > 0) { // if id is present, use that to locate DOM element
             let fieldTarget = document.getElementById(item.id);
+            item.checked = fieldTarget.checked;
             item.value = fieldTarget.value;
         } else { // in absence of id, use name field
             let fieldTarget = document.getElementsByName(item.name);
+            item.checked = fieldTarget.checked;
             item.value = fieldTarget.value;
         }
     });
@@ -140,9 +146,11 @@ function writeFormFields(formFields) {
     formFields.forEach(function(item) {
         if (item.id.length > 0) { // if id is present, use that to locate DOM element
             let fieldTarget = document.getElementById(item.id);
+            fieldTarget.checked = item.checked;
             fieldTarget.value = item.value;
         } else { // in absence of id, use name field
             let fieldTarget = document.getElementsByName(item.name);
+            fieldTarget.checked = item.checked;
             fieldTarget.value = item.value;
         }
     });
