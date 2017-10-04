@@ -85,16 +85,40 @@ button:active {
     display: inline;
 }
 
-#delete,
+#delete:hover,
 #delall:hover,
 #yes:hover,
 #no:hover {
     background-color: #880000;
 }
 
-#delete,
+#delete:active,
 #delall:active,
-#yes:hover,
-#no:hover {
+#yes:active,
+#no:active {
     background-color: #5A0000;
+}
+
+#recover {
+    background-color: #B1B127;
+}
+
+#recover:hover {
+    background-color: #BBBB2A;
+}
+
+#recover:active {
+    background-color: #A1A124;
+}
+
+#enable {
+    background-color: #036800;
+}
+
+#enable:hover {
+    background-color: #068100;
+}
+
+#enable:active {
+    background-color: #045501;
 }
