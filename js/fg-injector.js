@@ -61,10 +61,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         recoveredFormData = null; // remove initial fetched data
         savedDataPresent = false; // set flag for no saved data
         sendResponse(["deleted"]);
-    } else if (message[0] === "isThereSavedData") {
-        // Answer request about whether there is saved data for this page
-        if (savedDataPresent) sendResponse([true]);
-        else sendResponse([false]);
+    } else if (message[0] === "pageState") {
+        // Answer request about page state
+        // This response will hold [<is there saved data?>, <is it recording?>]
+        let response = [];
+        response[0] = savedDataPresent;
+        if (intervalID) response[1] = true;
+        else response[1] = false;
+        sendResponse(response);
     }
 })
 
