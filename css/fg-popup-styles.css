@@ -35,10 +35,11 @@ section {
     padding: 10px 0;
 }
 
-#status {
-    display: none; /* By default this is hidden until used */
+#status,
+#confirm {
     color: #F1F1F1;
     font-weight: bold;
+    text-shadow: 0 0 5px #1D1D1D;
 }
 
 h2 {
@@ -65,14 +66,32 @@ button:active {
     background-color: #5C5C5C;
 }
 
-#delall {
+#recover,
+#disable,
+#delete,
+#confirm {
+    display: none; /* By default this is hidden until used */
+}
+
+#delall,
+#yes,
+#no {
     background-color: #6E0000;
 }
 
-#delall:hover {
+#yes,
+#no {
+    display: inline-block;
+}
+
+#delall:hover,
+#yes:hover,
+#no:hover {
     background-color: #880000;
 }
 
-#delall:active {
+#delall:active,
+#yes:hover,
+#no:hover {
     background-color: #5A0000;
 }
