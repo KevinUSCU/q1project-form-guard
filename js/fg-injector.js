@@ -1,6 +1,3 @@
-// Dummy check to make sure injector is running
-console.log("I'm running on this page!");
-
 // Global Variables
 var recoveredFormData = null; // will hold previously saved data from prior page visit
 var formFields = getFormFields(); // holds the current fields found and read on this visit
