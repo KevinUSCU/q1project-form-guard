@@ -73,6 +73,7 @@ button:active {
     display: none; /* By default this is hidden until used */
 }
 
+#delete,
 #delall,
 #yes,
 #no {
@@ -81,15 +82,17 @@ button:active {
 
 #yes,
 #no {
-    display: inline-block;
+    display: inline;
 }
 
+#delete,
 #delall:hover,
 #yes:hover,
 #no:hover {
     background-color: #880000;
 }
 
+#delete,
 #delall:active,
 #yes:hover,
 #no:hover {

@@ -1,19 +1,34 @@
-// Button DOM references
+// DOM references
 var recoverButton = document.getElementById("recover");
 var enableButton = document.getElementById("enable");
 var disableButton = document.getElementById("disable");
 var deleteButton = document.getElementById("delete");
 var delallButton = document.getElementById("delall");
+var yesButton = document.getElementById("yes");
+var noButton = document.getElementById("no");
 
-// On load, check if this tab has recoverable data
-// Get id for active tab
+var statusElement = document.getElementById("status");
+var confirmElement = document.getElementById("confirm");
+
+
+// On LOAD, check if this tab:
+//   has recoverable data
+//   is recording
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     // Send message to injector on active tab
-    chrome.tabs.sendMessage(tabs[0].id, ["isThereSavedData"], function(response) {
-        if (response[0] === false) { // hide recover & delete buttons
-            recoverButton.style.display = "none";
-            deleteButton.style.display = "none";
-        }   
+    chrome.tabs.sendMessage(tabs[0].id, ["pageState"], function(response) {
+        if (response[0] === true) {
+            // Display recover & delete buttons
+            recoverButton.style.display = "inline";
+            deleteButton.style.display = "inline";
+        }
+        if (response[1] === true) {
+            // Display status message
+            statusElement.innerText = "Form backup is ON";
+            // hide enable button; display disable button
+            enableButton.style.display = "none";
+            disableButton.style.display = "inline";
+        }
     });
 });
 
@@ -24,11 +39,10 @@ recoverButton.addEventListener("click", function() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         // Send message to injector on active tab
         chrome.tabs.sendMessage(tabs[0].id, ["recover"], function(response) {
-            // Display status message in popup
-            let status = document.getElementById("status");
-            if (response[0] === true) status.innerText = "Data Recovered";
-            else status.innerText = "There was no data to recover";
-            status.style.display = "block"; // make visible
+            // Display status message
+            if (response[0] === true) statusElement.innerText = "Data Recovered";
+            // Next line should no longer fire
+            else statusElement.innerText = "There was no data to recover";
         });
     });
 });
@@ -38,12 +52,16 @@ enableButton.addEventListener("click", function() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         // Send message to injector on active tab
         chrome.tabs.sendMessage(tabs[0].id, ["activate"], function(response) {
-            // Display status message in popup
-            let status = document.getElementById("status");
-            if (response[0] === "recording") status.innerText = "Form is being recorded";
-            else if (response[0] === "alreadyRecording") status.innerText = "Form was already recording\n(and still is)";
-            else status.innerText = "There has been an error";
-            status.style.display = "block"; // make visible
+            // Display status message
+            if (response[0] === "recording") statusElement.innerText = "Form backup is ON";
+            // Next two lines in theory never fire, leaving for possible future use
+            else if (response[0] === "alreadyRecording") statusElement.innerText = "Form was already recording\n(and still is)";
+            else statusElement.innerText = "There has been an error";
+            // Swap button display states
+            enableButton.style.display = "none";
+            disableButton.style.display = "inline";
+            recoverButton.style.display = "inline";
+            deleteButton.style.display = "inline";
         });
     });
 });
@@ -53,10 +71,13 @@ disableButton.addEventListener("click", function() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         // Send message to injector on active tab
         chrome.tabs.sendMessage(tabs[0].id, ["deactivate"], function(response) {
-            // Display status message in popup
-            let status = document.getElementById("status");
-            status.innerText = "Form is no longer being recorded";
-            status.style.display = "block"; // make visible
+            if (response[0] === "stopped") {
+                // Display status message
+                statusElement.innerText = "Form backup is OFF";
+                // Swap display of enableButton and disableButton
+                enableButton.style.display = "inline";
+                disableButton.style.display = "none";
+            }
         });
     });
 });
@@ -66,23 +87,46 @@ deleteButton.addEventListener("click", function() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         // Send message to injector on active tab
         chrome.tabs.sendMessage(tabs[0].id, ["delete"], function(response) {
-            // Display status message in popup
-            let status = document.getElementById("status");
-            if (response[0] === "deleted") status.innerText = "Data was deleted";
-            else status.innerText = "There was no saved data"; // not currently verified
-            status.style.display = "block"; // make visible
+            // On delete confirm, stop recording
+            if (response[0] === "deleted") { 
+                chrome.tabs.sendMessage(tabs[0].id, ["deactivate"], function(response) {
+                    if (response[0] === "stopped") {
+                        // Display status message in popup
+                        statusElement.innerText = "Data was deleted\nAND\nform backup is OFF";
+                        // Swap button display states
+                        enableButton.style.display = "inline";
+                        disableButton.style.display = "none";
+                        deleteButton.style.display = "none";
+                        recoverButton.style.display = "none";
+                    }
+                });
+            }
         });
     });
 });
 
 delallButton.addEventListener("click", function() {
+    // Display confirm element
+    delallButton.style.display = "none";
+    confirmElement.style.display = "inline";
+});
+
+yesButton.addEventListener("click", function() {
     // Clear all storage data for this extension
     chrome.storage.local.clear();
-    // Display status message in popup
-    let status = document.getElementById("status");
-    status.innerText = "All Form Guard data was deleted";
-    status.style.display = "block"; // make visible
+    // Display status message    let status = document.getElementById("status");
+    statusElement.innerText = "ALL Form Guard data was deleted";
+    // Swap display elements
+    delallButton.style.display = "inline";
+    confirmElement.style.display = "none";
 });
+
+noButton.addEventListener("click", function() {
+    // No action is taken other than to swap display elements
+    delallButton.style.display = "inline";
+    confirmElement.style.display = "none";
+});
+
 
 // Function to get URL of the current tab (async)
 function getActiveTabUrl(callback) {

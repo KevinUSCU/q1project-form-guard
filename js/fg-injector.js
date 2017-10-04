@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             intervalID = window.setInterval(function() {
                 readFormFields(formFields);
                 chrome.runtime.sendMessage(["save", formFields]);
-            }, 15000);
+            }, 5000);
             savedDataPresent = true; // flag that there will now be saved data
             sendResponse(["recording"]);
         } else sendResponse(["alreadyRecording"]);
@@ -43,6 +43,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         // Stop recording form data on page
         if (intervalID) {
             window.clearInterval(intervalID);
+            intervalID = null;
         }
         sendResponse(["stopped"]);
     } else if (message[0] === "recover") {
