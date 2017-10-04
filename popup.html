@@ -14,16 +14,22 @@
             <header>
                 <h1>Form Guard</h1>
             </header>
-            <section id="status">
+            <section>
+                <p id="status">Form backup is off</p>
             </section>
             <section>
                 <h2>This Page ---></h2>
-                <button id="recover">Recover Data</button>
+                <button id="recover">Recover Data</button> <!-- hidden by default in css -->
                 <button id="enable">Enable Saving</button>
-                <button id="disable">Disable Saving</button>
-                <button id="delete">Delete Page Saved Data</button>
+                <button id="disable">Disable Saving</button> <!-- hidden by default in css -->
+                <button id="delete">Delete Page Saved Data</button> <!-- hidden by default in css -->
                 <h2>Everywhere ---></h2>
                 <button id="delall">Delete <u>ALL</u> Saved Data</button>
+                <div id="confirm"> <!-- hidden by default in css (toggles with #delall) -->
+                    <p>Are you sure?</p>
+                    <button id="yes">Yes</button>
+                    <button id="no">No</button>
+                </div>
             </section>
         </div>
     </body>
