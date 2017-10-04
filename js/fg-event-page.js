@@ -7,14 +7,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         // Check for previously stored data
         getSavedFormData(sender.tab.url, (data) => {
             if (data) sendResponse([true, data]);
-            else sendResponse([false, null]);
+            else sendResponse([false]);
         });
         return true; //this is need to make this work async (getSavedFormData is async)
     } else if (message[0] === "fetch") {
         // Serve request to fetch previously stored data
         getSavedFormData(sender.tab.url, (data) => {
             if (data) sendResponse([true, data]);
-            else sendResponse([false, null]);
+            else sendResponse([false]);
         });
         return true; //this is need to make this work async (getSavedFormData is async)
     } else if (message[0] === "save") {

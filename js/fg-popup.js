@@ -1,23 +1,29 @@
-// Enable fg-popup.js to be able to interact with fg-event-page.js ?????
-var eventPage = chrome.extension.getBackgroundPage();
-
-
-// Check if this tab has recoverable data
-
-
-
-// Button Listeners
+// Button DOM references
 var recoverButton = document.getElementById("recover");
 var enableButton = document.getElementById("enable");
 var disableButton = document.getElementById("disable");
 var deleteButton = document.getElementById("delete");
 var delallButton = document.getElementById("delall");
 
+// On load, check if this tab has recoverable data
+// Get id for active tab
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    // Send message to injector on active tab
+    chrome.tabs.sendMessage(tabs[0].id, ["isThereSavedData"], function(response) {
+        if (response[0] === false) { // hide recover & delete buttons
+            recoverButton.style.display = "none";
+            deleteButton.style.display = "none";
+        }   
+    });
+});
+
+
+// Button Listeners
 recoverButton.addEventListener("click", function() {
     // Get id for active tab
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         // Send message to injector on active tab
-        chrome.tabs.sendMessage(tabs[0].id, ["recover", null], function(response) {
+        chrome.tabs.sendMessage(tabs[0].id, ["recover"], function(response) {
             // Display status message in popup
             let status = document.getElementById("status");
             if (response[0] === true) status.innerText = "Data Recovered";
@@ -31,7 +37,7 @@ enableButton.addEventListener("click", function() {
     // Get id for active tab
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         // Send message to injector on active tab
-        chrome.tabs.sendMessage(tabs[0].id, ["activate", null], function(response) {
+        chrome.tabs.sendMessage(tabs[0].id, ["activate"], function(response) {
             // Display status message in popup
             let status = document.getElementById("status");
             if (response[0] === "recording") status.innerText = "Form is being recorded";
@@ -46,7 +52,7 @@ disableButton.addEventListener("click", function() {
     // Get id for active tab
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         // Send message to injector on active tab
-        chrome.tabs.sendMessage(tabs[0].id, ["deactivate", null], function(response) {
+        chrome.tabs.sendMessage(tabs[0].id, ["deactivate"], function(response) {
             // Display status message in popup
             let status = document.getElementById("status");
             status.innerText = "Form is no longer being recorded";
@@ -59,7 +65,7 @@ deleteButton.addEventListener("click", function() {
     // Get id for active tab
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         // Send message to injector on active tab
-        chrome.tabs.sendMessage(tabs[0].id, ["delete", null], function(response) {
+        chrome.tabs.sendMessage(tabs[0].id, ["delete"], function(response) {
             // Display status message in popup
             let status = document.getElementById("status");
             if (response[0] === "deleted") status.innerText = "Data was deleted";

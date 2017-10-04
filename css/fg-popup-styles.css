@@ -36,9 +36,14 @@ section {
 }
 
 #status {
-    display: none;
+    display: none; /* By default this is hidden until used */
     color: #F1F1F1;
     font-weight: bold;
+}
+
+h2 {
+    text-align: left;
+    padding-left: 10px;
 }
 
 button {
@@ -58,4 +63,16 @@ button:hover {
 
 button:active {
     background-color: #5C5C5C;
+}
+
+#delall {
+    background-color: #6E0000;
+}
+
+#delall:hover {
+    background-color: #880000;
+}
+
+#delall:active {
+    background-color: #5A0000;
 }

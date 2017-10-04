@@ -1,61 +1,70 @@
 // Dummy check to make sure injector is running
 console.log("I'm running on this page!");
 
+// Global Variables
+var recoveredFormData = null; // will hold previously saved data from prior page visit
+var formFields = getFormFields(); // holds the current fields found and read on this visit
+var intervalID = null; // variable to reference interval timer; also indicates if page is actively recording
+var savedDataPresent = false; // tracks whether there is currently any saved data (prior or current) for the page
+
 // At page load, establish if forms are present and existence of previously saved data
-var recoveredFormData = null; //will hold previously saved data
-var formFields = getFormFields(); //holds the current fields found and read on the page
 if (formFields.length > 0) {
     // Send message to Event Page to enable extension for user
-    chrome.runtime.sendMessage(["enable", null], function(response) {
+    chrome.runtime.sendMessage(["enable"], function(response) {
         // Check for previously stored form data
         console.log(response)
         if (response[0] === true) {
             // Stored data exists and has been returned
             recoveredFormData = response[1];
+            savedDataPresent = true;
             displayAlert();
         }
     })
 }
 
 // Listener for main extension requests
-// (messages and responses are arrays where index 0 is the command, and index 1 carries data)
-var intervalID = null;
-
+// (all messages and responses are arrays where index 0 is the command, and index 1 carries data if needed)
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     if (message[0] === "activate") {
         // Start recording form data on page
         if (!intervalID) {
+            // Save once immediately
+            readFormFields(formFields);
+            chrome.runtime.sendMessage(["save", formFields]);
+            // Start interval recording
             intervalID = window.setInterval(function() {
                 readFormFields(formFields);
                 chrome.runtime.sendMessage(["save", formFields]);
             }, 15000);
-            sendResponse(["recording", null]);
-        } else sendResponse(["alreadyRecording", null]);
+            savedDataPresent = true; // flag that there will now be saved data
+            sendResponse(["recording"]);
+        } else sendResponse(["alreadyRecording"]);
     } else if (message[0] === "deactivate") {
         // Stop recording form data on page
         if (intervalID) {
             window.clearInterval(intervalID);
         }
-        sendResponse(["stopped", null]);
+        sendResponse(["stopped"]);
     } else if (message[0] === "recover") {
         // Recover most recently saved form data on page
-        chrome.runtime.sendMessage(["fetch", null], function(response) {
+        chrome.runtime.sendMessage(["fetch"], function(response) {
             if (response[0] === true) {
                 // Write data back to page
                 writeFormFields(response[1]);
-                sendResponse([true, null]);
-            } else sendResponse([false, null]);
+                sendResponse([true]);
+            } else sendResponse([false]);
         })
         return true; // to make async to handle waiting for fetch response
     } else if (message[0] === "delete") {
         // Delete previously saved data on page by sending request to event-page
-        chrome.runtime.sendMessage(["erase", null]);
+        chrome.runtime.sendMessage(["erase"]);
         recoveredFormData = null; // remove initial fetched data
-        sendResponse(["deleted", null]);
-    } else if (message[0] === "isThereRecoveredData") {
-        // Answer request about whether there is recovered data at startup
-        if (recoveredFormData) sendResponse([true, null]);
-        else sendResponse([false, null]);
+        savedDataPresent = false; // set flag for no saved data
+        sendResponse(["deleted"]);
+    } else if (message[0] === "isThereSavedData") {
+        // Answer request about whether there is saved data for this page
+        if (savedDataPresent) sendResponse([true]);
+        else sendResponse([false]);
     }
 })
 
@@ -115,7 +124,10 @@ function getFormFields() {
             "search",
             "credit",
             "cvc",
-            "password"
+            "password",
+            "account",
+            "ssn",
+            "security"
         ];
 
         // Filter out items containing excluded terms
