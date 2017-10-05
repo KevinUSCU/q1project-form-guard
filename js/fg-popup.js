@@ -95,18 +95,19 @@ yesPageButton.addEventListener("click", function() {
     // Get id for active tab
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         // Send message to injector on active tab
-        chrome.tabs.sendMessage(tabs[0].id, ["delete"], function(response) {
-            // On delete confirm, stop recording
-            if (response[0] === "deleted") { 
-                chrome.tabs.sendMessage(tabs[0].id, ["deactivate"], function(response) {
-                    if (response[0] === "stopped") {
+        // Stop recording
+        chrome.tabs.sendMessage(tabs[0].id, ["deactivate"], function(response) {
+            if (response[0] === "stopped") {
+                // Delete saved data for tab
+                chrome.tabs.sendMessage(tabs[0].id, ["delete"], function(response) {
+                    if (response[0] === "deleted") {
                         // Display status message in popup
                         statusElement.innerText = "Data was deleted\nAND\nform backup is OFF";
                         // Swap button display states
                         enableButton.style.display = "inline";
                         disableButton.style.display = "none";
-                        deleteButton.style.display = "none";
                         recoverButton.style.display = "none";
+                        deleteButton.style.display = "none";
                         confirmPageElement.style.display = "none";
                     }
                 });
@@ -128,11 +129,23 @@ delallButton.addEventListener("click", function() {
 });
 
 yesAllButton.addEventListener("click", function() {
+    // Stop recording on ALL tabs
+    chrome.windows.getAll({populate:true},function(windows) {
+        windows.forEach(function(window) {
+            window.tabs.forEach(function(tab) {
+                chrome.tabs.sendMessage(tab.id, ["deactivate"]);
+            });
+         });
+    });
     // Clear all storage data for this extension
     chrome.storage.local.clear();
-    // Display status message    let status = document.getElementById("status");
-    statusElement.innerText = "ALL Form Guard data was deleted";
+    // Display status message
+    statusElement.innerText = "ALL Form Guard data was deleted\nAND\nALL form backup is off";
     // Swap display elements
+    enableButton.style.display = "inline";
+    disableButton.style.display = "none";
+    recoverButton.style.display = "none";
+    deleteButton.style.display = "none";
     delallButton.style.display = "inline";
     confirmAllElement.style.display = "none";
 });
