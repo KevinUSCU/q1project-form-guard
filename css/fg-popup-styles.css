@@ -36,7 +36,8 @@ section {
 }
 
 #status,
-#confirm {
+#confirm1,
+#confirm2 {
     color: #F1F1F1;
     font-weight: bold;
     text-shadow: 0 0 5px #1D1D1D;
@@ -69,33 +70,42 @@ button:active {
 #recover,
 #disable,
 #delete,
-#confirm {
+#confirm1,
+#confirm2 {
     display: none; /* By default this is hidden until used */
 }
 
 #delete,
 #delall,
-#yes,
-#no {
+#yes1,
+#no1,
+#yes2,
+#no2 {
     background-color: #6E0000;
 }
 
-#yes,
-#no {
+#yes1,
+#no1,
+#yes2,
+#no2 {
     display: inline;
 }
 
 #delete:hover,
 #delall:hover,
-#yes:hover,
-#no:hover {
+#yes1:hover,
+#no1:hover,
+#yes2:hover,
+#no2:hover {
     background-color: #880000;
 }
 
 #delete:active,
 #delall:active,
-#yes:active,
-#no:active {
+#yes1:active,
+#no1:active,
+#yes2:active,
+#no2:active {
     background-color: #5A0000;
 }
 

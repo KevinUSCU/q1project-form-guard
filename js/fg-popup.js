@@ -4,11 +4,14 @@ var enableButton = document.getElementById("enable");
 var disableButton = document.getElementById("disable");
 var deleteButton = document.getElementById("delete");
 var delallButton = document.getElementById("delall");
-var yesButton = document.getElementById("yes");
-var noButton = document.getElementById("no");
+var yesPageButton = document.getElementById("yes1");
+var noPageButton = document.getElementById("no1");
+var yesAllButton = document.getElementById("yes2");
+var noAllButton = document.getElementById("no2");
 
 var statusElement = document.getElementById("status");
-var confirmElement = document.getElementById("confirm");
+var confirmPageElement = document.getElementById("confirm1");
+var confirmAllElement = document.getElementById("confirm2");
 
 
 // On LOAD, check if this tab:
@@ -83,6 +86,12 @@ disableButton.addEventListener("click", function() {
 });
 
 deleteButton.addEventListener("click", function() {
+    // Display confirm element
+    deleteButton.style.display = "none";
+    confirmPageElement.style.display = "inline";
+});
+
+yesPageButton.addEventListener("click", function() {
     // Get id for active tab
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         // Send message to injector on active tab
@@ -98,6 +107,7 @@ deleteButton.addEventListener("click", function() {
                         disableButton.style.display = "none";
                         deleteButton.style.display = "none";
                         recoverButton.style.display = "none";
+                        confirmPageElement.style.display = "none";
                     }
                 });
             }
@@ -105,26 +115,32 @@ deleteButton.addEventListener("click", function() {
     });
 });
 
+noPageButton.addEventListener("click", function() {
+    // No action is taken other than to swap display elements
+    deleteButton.style.display = "inline";
+    confirmPageElement.style.display = "none";
+});
+
 delallButton.addEventListener("click", function() {
     // Display confirm element
     delallButton.style.display = "none";
-    confirmElement.style.display = "inline";
+    confirmAllElement.style.display = "inline";
 });
 
-yesButton.addEventListener("click", function() {
+yesAllButton.addEventListener("click", function() {
     // Clear all storage data for this extension
     chrome.storage.local.clear();
     // Display status message    let status = document.getElementById("status");
     statusElement.innerText = "ALL Form Guard data was deleted";
     // Swap display elements
     delallButton.style.display = "inline";
-    confirmElement.style.display = "none";
+    confirmAllElement.style.display = "none";
 });
 
-noButton.addEventListener("click", function() {
+noAllButton.addEventListener("click", function() {
     // No action is taken other than to swap display elements
     delallButton.style.display = "inline";
-    confirmElement.style.display = "none";
+    confirmAllElement.style.display = "none";
 });
 
 
