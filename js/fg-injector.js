@@ -1,17 +1,18 @@
 // Global Variables
-var recoveredFormData = null; // will hold previously saved data from prior page visit
-var formFields = getFormFields(); // holds the current fields found and read on this visit
+var domMap = getDomMap(); // map of all possible DOM form elements
+var formData = getFormFields(domMap); // current collected form data (subset of domMap)
+var priorData = null; // will hold save data from prior visit
 var intervalID = null; // variable to reference interval timer; also indicates if page is actively recording
 var savedDataPresent = false; // tracks whether there is currently any saved data (prior or current) for the page
 
 // At page load, establish if forms are present and existence of previously saved data
-if (formFields.length > 0) {
+if (domMap.length > 0) {
     // Send message to Event Page to enable extension for user
     chrome.runtime.sendMessage(["enable"], function(response) {
         // Check for previously stored form data
         if (response[0] === true) {
             // Stored data exists and has been returned
-            recoveredFormData = response[1];
+            priorData = response[1];
             savedDataPresent = true;
             displayAlert();
         }
@@ -19,18 +20,18 @@ if (formFields.length > 0) {
 }
 
 // Listener for main extension requests
-// (all messages and responses are arrays where index 0 is the command, and index 1 carries data if needed)
+// (all messages and responses are arrays where index 0 is the command, and index 1 carries data when needed)
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     if (message[0] === "activate") {
         // Start recording form data on page
         if (!intervalID) {
             // Save once immediately
-            readFormFields(formFields);
-            chrome.runtime.sendMessage(["save", formFields]);
+            readFormFields(formData, domMap);
+            chrome.runtime.sendMessage(["save", formData]);
             // Start interval recording
             intervalID = window.setInterval(function() {
-                readFormFields(formFields);
-                chrome.runtime.sendMessage(["save", formFields]);
+                readFormFields(formData, domMap);
+                chrome.runtime.sendMessage(["save", formData]);
             }, 5000);
             savedDataPresent = true; // flag that there will now be saved data
             sendResponse(["recording"]);
@@ -47,7 +48,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         chrome.runtime.sendMessage(["fetch"], function(response) {
             if (response[0] === true) {
                 // Write data back to page
-                writeFormFields(response[1]);
+                writeFormFields(response[1], domMap);
                 sendResponse([true]);
             } else sendResponse([false]);
         })
@@ -55,7 +56,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     } else if (message[0] === "delete") {
         // Delete previously saved data on page by sending request to event-page
         chrome.runtime.sendMessage(["erase"]);
-        recoveredFormData = null; // remove initial fetched data
+        priorData = null; // remove fetched data from prior visit
         savedDataPresent = false; // set flag for no saved data
         sendResponse(["deleted"]);
     } else if (message[0] === "pageState") {
@@ -69,18 +70,42 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }
 })
 
-// Function to Grab Form Fields and set up our data structure
-// (Note that a custom structure is needed because it needs to be "JSONifiable")
-function getFormFields() {
-    let formArray = []; // this is an array of objects, each with a name key and a value
-    
+// Function to grab all possible form fields on the page
+// (also used as a reference when putting stuff back)
+function getDomMap() {
+    var domArray = [];
+
     // Eliminate anything in a <header>. Would also be worth eliminating footer fields, but
-    // combining these seems messy, so will revisit later.
+    // combining these is messy, so may revisit later.
     let inputItems = document.querySelectorAll("body > *:not(header) input");
     let selectItems = document.querySelectorAll("body > *:not(header) select");
     let textareaItems = document.querySelectorAll("body > *:not(header) textarea");
 
-    inputItems.forEach(function(item) {
+    // Combine these from Node Lists to a single array
+    let indexCounter = 0;
+    for (let i = 0; i < inputItems.length; i++) {
+        domArray[indexCounter] = inputItems[i];
+        indexCounter++;
+    }
+    for (let i = 0; i < selectItems.length; i++) {
+        domArray[indexCounter] = selectItems[i];
+        indexCounter++;
+    }
+    for (let i = 0; i < textareaItems.length; i++) {
+        domArray[indexCounter] = textareaItems[i];
+        indexCounter++;
+    }
+
+    return domArray;
+}
+
+// Function to extract Form Fields and set up our data structure
+// Note the returned structure needs to be "JSONifiable" for Chrome storage, which it is 
+function getFormFields(inputArray) {
+    let formArray = []; // this will be an array of objects, each with a name key and a value
+    
+    for (let i = 0; i < inputArray.length; i++) {
+        let item = inputArray[i];
         // For <input> items, check for valid type before sending to parseItem
         let validTypes = [
             "checkbox",
@@ -98,28 +123,12 @@ function getFormFields() {
             "url",
             "week"
         ];
-        if (validTypes.includes(item.type.toLowerCase())) parseItem(item);
-    });
-    selectItems.forEach(parseItem);
-    textareaItems.forEach(parseItem);
+        if (item.nodeName === "INPUT") {
+            if (validTypes.includes(item.type.toLowerCase())) parseItem(i, item);
+        } else parseItem(i, item); // for select and textarea items
+    }
 
-    function parseItem(item) {
-        let object = {
-            name: "",
-            id: "",
-            checked: "",
-            value: ""
-        }
-        object.name = item.name;
-        object.id = item.id;
-        object.checked = item.checked;
-        object.value = item.value;
-
-        let isValidItem = true;
-
-        // Only add items that have a useable name and/or id
-        if (object.name.length === 0 && object.id.length === 0) isValidItem = false;
-        
+    function parseItem(position, item) {
         // Set lexicon of excluded terms
         let invalidTerms = [
             "search",
@@ -132,44 +141,40 @@ function getFormFields() {
         ];
 
         // Filter out items containing excluded terms
+        let isValidItem = true;
+
         for (let i = 0; i < invalidTerms.length; i++) {
-            if (object.name.toLowerCase().includes(invalidTerms[i])) isValidItem = false;
-            else if (object.id.toLowerCase().includes(invalidTerms[i])) isValidItem = false;
+            if (item.name.toLowerCase().includes(invalidTerms[i])) isValidItem = false;
+            else if (item.id.toLowerCase().includes(invalidTerms[i])) isValidItem = false;
         }
                     
-        if (isValidItem) formArray.push(object);
+        if (isValidItem) {
+            let object = {
+                index: position,
+                checked: item.checked,
+                value: item.value
+            }
+
+            formArray.push(object);
+        }
     }
 
     return formArray;
 }
 
 // Function to Read Form Data from DOM
-function readFormFields(formFields) {
+function readFormFields(formFields, domRef) {
     formFields.forEach(function(item) {
-        if (item.id.length > 0) { // if id is present, use that to locate DOM element
-            let fieldTarget = document.getElementById(item.id);
-            item.checked = fieldTarget.checked;
-            item.value = fieldTarget.value;
-        } else { // in absence of id, use name field
-            let fieldTarget = document.getElementsByName(item.name);
-            item.checked = fieldTarget.checked;
-            item.value = fieldTarget.value;
-        }
+        item.checked = domRef[item.index].checked;
+        item.value = domRef[item.index].value;
     });
 }
 
 // Function to Populate Form Data into DOM
-function writeFormFields(formFields) {
+function writeFormFields(formFields, domRef) {
     formFields.forEach(function(item) {
-        if (item.id.length > 0) { // if id is present, use that to locate DOM element
-            let fieldTarget = document.getElementById(item.id);
-            fieldTarget.checked = item.checked;
-            fieldTarget.value = item.value;
-        } else { // in absence of id, use name field
-            let fieldTarget = document.getElementsByName(item.name);
-            fieldTarget.checked = item.checked;
-            fieldTarget.value = item.value;
-        }
+        domRef[item.index].checked = item.checked;
+        domRef[item.index].value = item.value;
     });
 }
 
@@ -186,23 +191,23 @@ function displayAlert() {
     let message = document.createElement("p");
     message.innerText = `
         There is saved form data for this page!
-
-        To recover now, please click here:
+        To recover data from your prior visit,
+        please click here:
         `;
     alertbox.appendChild(message);
 
     let button = document.createElement("button");
-    button.innerText = "Recover";
+    button.innerText = "Recover Last Session";
     alertbox.appendChild(button);
     
     document.body.appendChild(alertbox);
 
     // Set listener for recover button
     button.addEventListener("click", function() {
-        writeFormFields(recoveredFormData);
+        writeFormFields(priorData, domMap);
     })
 
-    // Set listener to remove alert on click inside it
+    // Set listener to remove alert box on click inside it
     alertbox.addEventListener("click", function() {
         alertbox.style.animationName = "slideup";
         setTimeout(function() {
