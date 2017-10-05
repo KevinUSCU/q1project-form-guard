@@ -25,6 +25,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     if (message[0] === "activate") {
         // Start recording form data on page
         if (!intervalID) {
+            // Regrab domMap and formData to fix edge cases where form was generated after page load by JS
+            var domMap = getDomMap();
+            var formData = getFormFields(domMap);
             // Save once immediately
             readFormFields(formData, domMap);
             chrome.runtime.sendMessage(["save", formData]);
@@ -44,6 +47,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         }
         sendResponse(["stopped"]);
     } else if (message[0] === "recover") {
+        // Regrab domMap to fix edge cases where form was generated after page load by JS
+        var domMap = getDomMap();
         // Recover most recently saved form data on page
         chrome.runtime.sendMessage(["fetch"], function(response) {
             if (response[0] === true) {
@@ -137,7 +142,8 @@ function getFormFields(inputArray) {
             "password",
             "account",
             "ssn",
-            "security"
+            "security",
+            "card"
         ];
 
         // Filter out items containing excluded terms
@@ -204,6 +210,9 @@ function displayAlert() {
 
     // Set listener for recover button
     button.addEventListener("click", function() {
+        // Regrab domMap to fix edge cases where form was generated after page load by JS
+        var domMap = getDomMap();
+        // Write form back to page DOM
         writeFormFields(priorData, domMap);
     })
 
