@@ -106,11 +106,11 @@ function getDomMap() {
 
 // Function to extract Form Fields and set up our data structure
 // Note the returned structure needs to be "JSONifiable" for Chrome storage, which it is 
-function getFormFields(inputArray) {
+function getFormFields(nodeList) {
     let formArray = []; // this will be an array of objects, each with a name key and a value
     
-    for (let i = 0; i < inputArray.length; i++) {
-        let item = inputArray[i];
+    for (let i = 0; i < nodeList.length; i++) {
+        let item = nodeList[i];
         // For <input> items, check for valid type before sending to parseItem
         let validTypes = [
             "checkbox",
