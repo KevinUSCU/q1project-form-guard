@@ -9,6 +9,8 @@ Form Guard is an HTML/CSS/JS browser extension which can detect and backup form 
 * Saving can be paused by the user at any time
 * Saved data can be deleted on a per-page basis or globally
 
+## Screenshots
+
 ![](images/screenshot-1.png)
 
 ![](images/screenshot-2.png)
