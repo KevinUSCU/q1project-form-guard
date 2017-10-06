@@ -1,7 +1,7 @@
 {
   "name": "q1project-form-guard",
-  "version": "1.0.0",
-  "description": "Chrome Browser extension that backs up form field data.",
+  "version": "1.0.1",
+  "description": "Chrome Browser extension that automatically backs up form field data.",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
@@ -12,7 +12,7 @@
   },
   "keywords": [
     "form",
-    "chrome",
+    "chrome extension",
     "extension",
     "backup"
   ],
@@ -22,7 +22,7 @@
     "url": "https://github.com/KevinUSCU/q1project-form-guard/issues"
   },
   "homepage": "https://github.com/KevinUSCU/q1project-form-guard#readme",
-  "dependencies": {
+  "devDependencies": {
     "chai": "^4.1.2",
     "mocha": "^4.0.0"
   }
