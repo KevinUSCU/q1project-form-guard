@@ -7,7 +7,7 @@ var savedDataPresent = false; // tracks whether there is currently any saved dat
 
 // At page load, establish if forms are present and existence of previously saved data
 if (domMap.length > 0) {
-    // Send message to Event Page to enable extension for user
+    // Send message to Event Page to enable extension in toolbar for user
     chrome.runtime.sendMessage(["enable"], function(response) {
         // Check for previously stored form data
         if (response[0] === true) {
@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             }, 5000);
             savedDataPresent = true; // flag that there will now be saved data
             sendResponse(["recording"]);
-        } else sendResponse(["alreadyRecording"]);
+        }
     } else if (message[0] === "deactivate") {
         // Stop recording form data on page
         if (intervalID) {
@@ -47,7 +47,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         }
         sendResponse(["stopped"]);
     } else if (message[0] === "recover") {
-        // Regrab domMap to fix edge cases where form was generated after page load by JS
+        // Regrab domMap to fix edge cases where form was generated after page load by JavaScript
         var domMap = getDomMap();
         // Recover most recently saved form data on page
         chrome.runtime.sendMessage(["fetch"], function(response) {
@@ -55,7 +55,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                 // Write data back to page
                 writeFormFields(response[1], domMap);
                 sendResponse([true]);
-            } else sendResponse([false]);
+            }
         })
         return true; // to make async to handle waiting for fetch response
     } else if (message[0] === "delete") {
@@ -105,9 +105,9 @@ function getDomMap() {
 }
 
 // Function to extract Form Fields and set up our data structure
-// Note the returned structure needs to be "JSONifiable" for Chrome storage, which it is 
+// Note the returned structure needs to be "JSONifiable" for Chrome storage (which it is) 
 function getFormFields(nodeList) {
-    let formArray = []; // this will be an array of objects, each with a name key and a value
+    let formArray = []; // This will be an array of objects, each with a name key and a value
     
     for (let i = 0; i < nodeList.length; i++) {
         let item = nodeList[i];
@@ -130,7 +130,7 @@ function getFormFields(nodeList) {
         ];
         if (item.nodeName === "INPUT") {
             if (validTypes.includes(item.type.toLowerCase())) parseItem(i, item);
-        } else parseItem(i, item); // for select and textarea items
+        } else parseItem(i, item); // For select and textarea items
     }
 
     function parseItem(position, item) {

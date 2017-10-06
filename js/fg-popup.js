@@ -14,9 +14,7 @@ var confirmPageElement = document.getElementById("confirm1");
 var confirmAllElement = document.getElementById("confirm2");
 
 
-// On LOAD, check if this tab:
-//   has recoverable data
-//   is recording
+// On LOAD, check if this tab has recoverable data and is recording
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     // Send message to injector on active tab
     chrome.tabs.sendMessage(tabs[0].id, ["pageState"], function(response) {
@@ -28,7 +26,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         if (response[1] === true) {
             // Display status message
             statusElement.innerText = "Form backup is ON";
-            // hide enable button; display disable button
+            // Swap button display states
             enableButton.style.display = "none";
             disableButton.style.display = "inline";
         }
@@ -44,8 +42,6 @@ recoverButton.addEventListener("click", function() {
         chrome.tabs.sendMessage(tabs[0].id, ["recover"], function(response) {
             // Display status message
             if (response[0] === true) statusElement.innerText = "Data Recovered";
-            // Next line should no longer fire
-            else statusElement.innerText = "There was no data to recover";
         });
     });
 });
@@ -57,9 +53,6 @@ enableButton.addEventListener("click", function() {
         chrome.tabs.sendMessage(tabs[0].id, ["activate"], function(response) {
             // Display status message
             if (response[0] === "recording") statusElement.innerText = "Form backup is ON";
-            // Next two lines in theory never fire, leaving for possible future use
-            else if (response[0] === "alreadyRecording") statusElement.innerText = "Form was already recording\n(and still is)";
-            else statusElement.innerText = "There has been an error";
             // Swap button display states
             enableButton.style.display = "none";
             disableButton.style.display = "inline";
@@ -77,7 +70,7 @@ disableButton.addEventListener("click", function() {
             if (response[0] === "stopped") {
                 // Display status message
                 statusElement.innerText = "Form backup is OFF";
-                // Swap display of enableButton and disableButton
+                // Swap button display states
                 enableButton.style.display = "inline";
                 disableButton.style.display = "none";
             }
@@ -117,7 +110,7 @@ yesPageButton.addEventListener("click", function() {
 });
 
 noPageButton.addEventListener("click", function() {
-    // No action is taken other than to swap display elements
+    // No action is taken other than to swap button display states
     deleteButton.style.display = "inline";
     confirmPageElement.style.display = "none";
 });
@@ -141,7 +134,7 @@ yesAllButton.addEventListener("click", function() {
     chrome.storage.local.clear();
     // Display status message
     statusElement.innerText = "ALL Form Guard data was deleted\nAND\nALL form backup is off";
-    // Swap display elements
+    // Swap button display states
     enableButton.style.display = "inline";
     disableButton.style.display = "none";
     recoverButton.style.display = "none";
@@ -151,7 +144,7 @@ yesAllButton.addEventListener("click", function() {
 });
 
 noAllButton.addEventListener("click", function() {
-    // No action is taken other than to swap display elements
+    // No action is taken other than to swap button display states
     delallButton.style.display = "inline";
     confirmAllElement.style.display = "none";
 });
