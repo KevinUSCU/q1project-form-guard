@@ -7,9 +7,9 @@
 
     "icons": {
         "128": "images/icon-128.png",
+        "96": "images/icon-96.png",
         "64": "images/icon-64.png",
-        "32": "images/icon-32.png",
-        "16": "images/icon-16.png"
+        "32": "images/icon-32.png"
     },
 
     "permissions": [
