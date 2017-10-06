@@ -127,6 +127,8 @@ yesAllButton.addEventListener("click", function() {
         windows.forEach(function(window) {
             window.tabs.forEach(function(tab) {
                 chrome.tabs.sendMessage(tab.id, ["deactivate"]);
+                // Message injector to remove prior and currently indexed data
+                chrome.tabs.sendMessage(tab.id, ["clearData"]);
             });
          });
     });

@@ -72,6 +72,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         if (intervalID) response[1] = true;
         else response[1] = false;
         sendResponse(response);
+    } else if (message[0] === "clearData") {
+        priorData = null; // remove fetched data from prior visit
+        savedDataPresent = false; // set flag for no saved data
     }
 })
 
