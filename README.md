@@ -17,7 +17,7 @@ Form Guard is an HTML/CSS/JS browser extension which can detect and backup form 
 
 ## Installation
 
-[Download from the Chrome Web Store](http://)
+[Download from the Chrome Web Store](https://chrome.google.com/webstore/detail/form-guard/dglenckgeplgpjbfnhjkdnheipnebdad?hl=en-US&gl=US&authuser=1)
 
 ## Next Steps
 
