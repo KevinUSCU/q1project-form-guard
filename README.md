@@ -23,3 +23,4 @@ Form Guard is an HTML/CSS/JS browser extension which can detect and backup form 
 
 - [ ] Encrypt the data being stored
 - [ ] Timestamp the data and auto-clear it after a set interval (perhaps 10 days)
+- [ ] Custom handlers for specific sites
